@@ -16,6 +16,7 @@ high_end_multiplier = 2
 optimal = 0
 rpm = 0
 gear = 0
+combo = 0
 
 # INTERNAL DATA
 update_interval = 0.01667
@@ -41,10 +42,14 @@ def acMain(ac_version):
 	# so I'm just leaving them vanilla until I can figure it out
 	ac.drawBackground(app, 1)
 	ac.setBackgroundOpacity(app, background_opacity)
+
+	# Create all the labels
+	# title, combo_label, combo_count, last_diff_label, last_diff_amount
+
 	optimal = getTorqueCurve()
 
 def acUpdate(deltaT):
-	global timer, update_interval, rpm, gear, optimal, optimal_shift_range, perfect_shift_range
+	global timer, update_interval, rpm, gear, optimal, optimal_shift_range, perfect_shift_range, combo
 	timer += deltaT
 	
 	# 60 times per second
@@ -58,16 +63,19 @@ def acUpdate(deltaT):
 				# Perfect shift
 				# Just a short range around the optimal because shifting at the exact number is
 				# unlikely, and would be unfair 
-				log('Perfect shift! '+gear+', '+rpm)
+				combo += 1
+				log('Perfect shift! '+gear+', '+rpm+' -> '+combo)
 			else if (isInRange(rpm, optimal, optimal_shift_range, high_end_multiplier)):
 				# Good shift
 				# The optimal shift range is higher in the high side because someone is more likely to 
 				# want to pass the optimal, then shift; also, torque generally decreases slower
 				# after the optimal shift RPM than it rises prior to it, so a late shift is less
 				# detrimental than an early shift
-				log('Good shift! '+gear+', '+rpm)
+				combo += 1
+				log('Good shift! '+gear+', '+rpm+' -> '+combo)
 			else:
 				# Bad shift
+				combo = 0
 				log('Bad shift! '+gear+', '+rpm)
 			draw()
 
